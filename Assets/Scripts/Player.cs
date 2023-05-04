@@ -57,7 +57,7 @@ public class Player : MonoBehaviour
 
     [SerializeField] Transform footParent;
     [SerializeField] Transform handParent;
-
+    bool leftClickPressed = false;
 
     public enum State
     {
@@ -204,10 +204,20 @@ public class Player : MonoBehaviour
         inputMovement = value.Get<Vector2>();
     }
 
+    Vector3 initialLeftClickPosition = new Vector3();
     void OnFire()
     {
-        BufferInput attackBuffer = new BufferInput(TangData.InputActionType.LeftClick, currentMousePositionInsideBox.normalized, Time.time);
-        bufferQueue.Enqueue(attackBuffer);
+        leftClickPressed = true;
+        initialLeftClickPosition = currentMousePositionInsideBox; 
+    }
+
+    Vector3 finalLeftClickPosition = new Vector3();
+    void OnFireUp()
+    {
+        leftClickPressed = false;
+        finalLeftClickPosition = currentMousePositionInsideBox;
+        //BufferInput attackBuffer = new BufferInput(TangData.InputActionType.LeftClick, currentMousePositionInsideBox.normalized, Time.time);
+        //bufferQueue.Enqueue(attackBuffer);
     }
 
     void OnLook(InputValue value)
@@ -239,7 +249,7 @@ public class Player : MonoBehaviour
 
         currentMousePositionInsideBox = new Vector3(swordPositionZ, swordX, swordY);
 
-        handParent.transform.localPosition = Vector3.MoveTowards(handParent.transform.localPosition, currentMousePositionInsideBox, 50 * Time.deltaTime * Vector3.Distance(currentMousePositionInsideBox, handParent.transform.localPosition));
+
 
         float xDistanceFromLeft = TopLeftSwordPosition.y - swordX;
 
@@ -255,7 +265,13 @@ public class Player : MonoBehaviour
         Quaternion xRot = Quaternion.Lerp(TopLeftSwordRotation, TopRightSwordRotation, zeroToOneX);
         Quaternion yRot = Quaternion.Lerp(BottomRighSwordRotation, TopRightSwordRotation, zeroToOneY);
 
-        handParent.transform.localRotation = Quaternion.RotateTowards(handParent.transform.localRotation, xRot, 500 * Time.deltaTime);
+
+        if (!leftClickPressed)
+        {
+
+            handParent.transform.localRotation = Quaternion.RotateTowards(handParent.transform.localRotation, xRot, 500 * Time.deltaTime);
+            handParent.transform.localPosition = Vector3.MoveTowards(handParent.transform.localPosition, currentMousePositionInsideBox, 50 * Time.deltaTime * Vector3.Distance(currentMousePositionInsideBox, handParent.transform.localPosition));
+        }
         /*if (MathF.Abs(swordX) > 80 || swordY < 30)
         {
             handParent.transform.localRotation = Quaternion.RotateTowards(handParent.transform.localRotation, new Quaternion(xRot.x, yRot.y, yRot.z, xRot.w), 500 * Time.deltaTime);
@@ -268,25 +284,7 @@ public class Player : MonoBehaviour
 
     private void HandleAttackingSwordPosition()
     {
-        Quaternion targetRotation = new Quaternion();
-        if (Vector3.Distance(swordStartAttackPosition, handParent.transform.localPosition) > .1f)
-        {
-            float distanceFromTarget = Vector3.Distance(swordStartAttackPosition, handParent.transform.localPosition);
-            if (swordStartAttackPosition.y < 0)
-            {
-                targetRotation = Quaternion.Lerp(targetRotation, new Quaternion(TopLeftSwordRotation.x, TopLeftSwordRotation.y, TopLeftSwordRotation.z, TopLeftSwordRotation.w), distanceFromTarget);
-            }
-            if (swordStartAttackPosition.y > 0)
-            {
-                targetRotation = Quaternion.Lerp(targetRotation, new Quaternion(TopRightSwordRotation.x, TopRightSwordRotation.y, TopRightSwordRotation.z, TopRightSwordRotation.w), distanceFromTarget);
-            }
-            handParent.transform.localRotation = targetRotation;
-        }
 
-        if (handParent.transform.localPosition != swordStartAttackPosition)
-        {
-            handParent.transform.localPosition = Vector3.MoveTowards(handParent.transform.localPosition, swordStartAttackPosition, 1000f *Time.deltaTime );
-        }
     }
 
 
