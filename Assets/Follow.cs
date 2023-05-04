@@ -24,20 +24,19 @@ public class Follow : MonoBehaviour
     }
     public void SetTarget(Transform sentTransform)
     {
-        Debug.Log("Sent Transform");
         followTarget = sentTransform;
     }
 
     float xRotation;
-    internal void Rotate(Transform transformSent)
+    internal void Rotate(Vector3 localEulerAnglesf)
     {
-        xRotation = transformSent.localEulerAngles.x;
+        xRotation = localEulerAnglesf.x;
 
         if (xRotation < 340 && xRotation > 180)
         {
             xRotation = 340;
         }
-        this.transform.localEulerAngles = new Vector3(xRotation, transformSent.localEulerAngles.y, transformSent.localEulerAngles.z);
+        this.transform.localEulerAngles = new Vector3(xRotation, localEulerAnglesf.y, localEulerAnglesf.z);
 
 
     }

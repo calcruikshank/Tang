@@ -7,7 +7,7 @@ public class Lighsaber : MonoBehaviour
 {
     //The number of vertices to create per frame
     private const int NUM_VERTICES = 12;
-
+    [SerializeField] Player playerOwningSaber;
     [SerializeField]
     [Tooltip("The blade object")]
     private GameObject _blade = null;
@@ -119,12 +119,26 @@ public class Lighsaber : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
+        if (other.transform.root.GetComponentInChildren<Player>() != null)
+        {
+            if (other.transform.root.GetComponentInChildren<Player>() == playerOwningSaber)
+            {
+                return;
+            }
+        }
         _triggerEnterTipPosition = _tip.transform.position;
         _triggerEnterBasePosition = _base.transform.position;
     }
 
     private void OnTriggerExit(Collider other)
     {
+        if (other.transform.root.GetComponentInChildren<Player>() != null)
+        {
+            if (other.transform.root.GetComponentInChildren<Player>() == playerOwningSaber)
+            {
+                return;
+            }
+        }
         _triggerExitTipPosition = _tip.transform.position;
 
         //Create a triangle between the tip and base so that we can get the normal
