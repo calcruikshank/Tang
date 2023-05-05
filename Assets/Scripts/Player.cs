@@ -83,6 +83,8 @@ public class Player : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+
+        swordRotationWhileSwinging.LookAt(swingTarget, Vector3.up);
         HandleBufferInput();
         HandleInput();
         switch (state)
@@ -227,7 +229,6 @@ public class Player : MonoBehaviour
     }
     public void HandleRegularSwordPosition()
     {
-        swordRotationWhileSwinging.LookAt(swingTarget, Vector3.forward);
         float swordXCheck = swordY;
         swordX += inputLook.x;
         swordY += -inputLook.y;
