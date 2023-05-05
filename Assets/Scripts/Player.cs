@@ -40,6 +40,7 @@ public class Player : MonoBehaviour
     float swordY;
     float swordPositionZ;
     [SerializeField] Transform swingTarget;
+    [SerializeField] Transform swordRotationWhileSwinging;
 
     float bottomLimitPosition = 90;
     float topLimitPosition = -54;
@@ -226,6 +227,7 @@ public class Player : MonoBehaviour
     }
     public void HandleRegularSwordPosition()
     {
+        swordRotationWhileSwinging.LookAt(swingTarget, Vector3.forward);
         float swordXCheck = swordY;
         swordX += inputLook.x;
         swordY += -inputLook.y;
@@ -272,6 +274,13 @@ public class Player : MonoBehaviour
             handParent.transform.localRotation = Quaternion.RotateTowards(handParent.transform.localRotation, xRot, 500 * Time.deltaTime);
             handParent.transform.localPosition = Vector3.MoveTowards(handParent.transform.localPosition, currentMousePositionInsideBox, 50 * Time.deltaTime * Vector3.Distance(currentMousePositionInsideBox, handParent.transform.localPosition));
         }
+
+        if (leftClickPressed)
+        {
+            Debug.Log(swingTarget);
+            handParent.LookAt(swingTarget, -Vector3.forward);
+            handParent.transform.localEulerAngles = new Vector3(handParent.transform.localEulerAngles.x, handParent.transform.localEulerAngles.y, handParent.transform.localEulerAngles.z);
+        }
         /*if (MathF.Abs(swordX) > 80 || swordY < 30)
         {
             handParent.transform.localRotation = Quaternion.RotateTowards(handParent.transform.localRotation, new Quaternion(xRot.x, yRot.y, yRot.z, xRot.w), 500 * Time.deltaTime);
@@ -280,6 +289,9 @@ public class Player : MonoBehaviour
         {
         handParent.transform.localRotation = Quaternion.RotateTowards(handParent.transform.localRotation, xRot, 500 * Time.deltaTime);
         }*/
+
+
+
     }
 
     private void HandleAttackingSwordPosition()
