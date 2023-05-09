@@ -31,6 +31,7 @@ public class Player : MonoBehaviour
     [SerializeField] Quaternion TopLeftSwordRotation;
 
     [SerializeField] Transform visualForMousePosition;
+    [SerializeField] Transform halfwayPointVisual;
 
     Vector3 swordStartAttackPosition = new Vector3();
 
@@ -40,12 +41,16 @@ public class Player : MonoBehaviour
     float swordY;
     float swordPositionZ;
     [SerializeField] Transform swingTarget;
+    [SerializeField] Transform actualSwingTarget;
     [SerializeField] Transform swordRotationWhileSwinging;
     [SerializeField] Transform swordPathTransform;
+    [SerializeField] Transform initialLeftClickPositionTransform;
 
     float bottomLimitPosition = 90;
     float topLimitPosition = -54;
 
+
+    Vector3 directionOfHalfwayAttack;
 
     Vector3 horizontalVelocity;
 
@@ -84,7 +89,7 @@ public class Player : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        visualForMousePosition.localPosition = new Vector3(currentMousePositionInsideBox.x - 100, currentMousePositionInsideBox.y, currentMousePositionInsideBox.z);
+        visualForMousePosition.localPosition = new Vector3(currentMousePositionInsideBox.x, currentMousePositionInsideBox.y, currentMousePositionInsideBox.z);
         swordRotationWhileSwinging.LookAt(swingTarget, Vector3.up);
         swordRotationWhileSwinging.transform.position = handParent.transform.position;
         HandleBufferInput();
@@ -212,14 +217,15 @@ public class Player : MonoBehaviour
     Vector3 initialLeftClickPosition = new Vector3();
     void OnFire()
     {
-        initialLeftClickPosition = handParent.localPosition;
+        initialLeftClickPosition = visualForMousePosition.position;
+        initialLeftClickPositionTransform.position = initialLeftClickPosition;
         leftClickPressed = true;
     }
 
     Vector3 finalLeftClickPosition = new Vector3();
     void OnFireUp()
     {
-        finalLeftClickPosition = handParent.localPosition;
+        finalLeftClickPosition = visualForMousePosition.position;
         leftClickPressed = false;
         BufferInput attackBuffer = new BufferInput(TangData.InputActionType.LeftClick, currentMousePositionInsideBox.normalized, Time.time);
         bufferQueue.Enqueue(attackBuffer);
@@ -229,6 +235,8 @@ public class Player : MonoBehaviour
     {
         inputLook = value.Get<Vector2>();
     }
+
+    Vector3 midpointOfAttack;
     public void HandleRegularSwordPosition()
     {
         float swordXCheck = swordY;
@@ -280,11 +288,19 @@ public class Player : MonoBehaviour
 
         if (leftClickPressed)
         {
+            directionOfAttack = new Vector3( initialLeftClickPositionTransform.position.x, initialLeftClickPositionTransform.position.y, 0)  - new Vector3(visualForMousePosition.position.x, visualForMousePosition.position.y, 0);
+            midpointOfAttack = Vector3.Lerp(initialLeftClickPositionTransform.position, visualForMousePosition.position, 0.5f);
+
+            directionOfHalfwayAttack = midpointOfAttack - actualSwingTarget.position;
+
+
+
+            swordPathTransform.transform.up = directionOfAttack;
+
+            halfwayPointVisual.transform.position = midpointOfAttack;
+            halfwayPointVisual.transform.up = -directionOfHalfwayAttack;
+
             handParent.up = Vector3.MoveTowards(handParent.up, - swordRotationWhileSwinging.forward, 10 * Time.deltaTime);
-            swordPathTransform.transform.localPosition = initialLeftClickPosition;
-            swordPathTransform.transform.LookAt(visualForMousePosition);
-            swordPathTransform.forward = swordPathTransform.up;
-            swordPathTransform.rotation = new Quaternion((swordPathTransform.rotation.x),  swordPathTransform.rotation.y , MathF.Abs(swordPathTransform.rotation.z), swordPathTransform.rotation.w);
         }
         /*if (MathF.Abs(swordX) > 80 || swordY < 30)
         {
@@ -303,7 +319,8 @@ public class Player : MonoBehaviour
     bool isFollowThrough = false;
     private void HandleAttackingSwordPosition()
     {
-        handParent.rotation = swordPathTransform.rotation;
+        handParent.RotateAround(swordPathTransform.transform.position, handParent.right, 100 * Time.deltaTime);
+        //handParent.rotation = Quaternion.RotateTowards(handParent.rotation, halfwayPointVisual.rotation, 100 * Time.deltaTime);
         return;
         if (!isFollowThrough)
         {
@@ -372,7 +389,7 @@ public class Player : MonoBehaviour
                     {
                         if (currentBufferedInput.directionOfAction != Vector3.zero)
                         {
-                            //ChangeStateToAttack(new Vector3(currentBufferedInput.directionOfAction.x, currentBufferedInput.directionOfAction.y));
+                            ChangeStateToAttack(new Vector3(currentBufferedInput.directionOfAction.x, currentBufferedInput.directionOfAction.y));
                             bufferQueue.Dequeue();
                         }
                     }
@@ -384,8 +401,14 @@ public class Player : MonoBehaviour
             }
         }
     }
+
+
+    Vector3 directionOfAttack;
     private void ChangeStateToAttack(Vector3 vector3Sent)
     {
+
+        handParent.rotation = swordPathTransform.transform.rotation;
+        swordPathTransform.transform.up = directionOfAttack;
         Vector3 closestEdgePosition = FindClosestEdgePosition(vector3Sent);
         closestEdgePosition = new Vector3( closestEdgePosition.z, closestEdgePosition.x, closestEdgePosition.y );
         Debug.Log(closestEdgePosition);
