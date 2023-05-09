@@ -85,6 +85,7 @@ public class Player : MonoBehaviour
     {
 
         swordRotationWhileSwinging.LookAt(swingTarget, Vector3.up);
+        swordRotationWhileSwinging.transform.position = handParent.transform.position;
         HandleBufferInput();
         HandleInput();
         switch (state)
@@ -278,9 +279,7 @@ public class Player : MonoBehaviour
 
         if (leftClickPressed)
         {
-            Debug.Log(swingTarget);
-            handParent.LookAt(swingTarget, -Vector3.forward);
-            handParent.transform.localEulerAngles = new Vector3(handParent.transform.localEulerAngles.x, handParent.transform.localEulerAngles.y, handParent.transform.localEulerAngles.z);
+            handParent.up = -swordRotationWhileSwinging.forward;
         }
         /*if (MathF.Abs(swordX) > 80 || swordY < 30)
         {
