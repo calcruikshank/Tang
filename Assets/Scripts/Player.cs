@@ -89,7 +89,7 @@ public class Player : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        visualForMousePosition.localPosition = new Vector3(currentMousePositionInsideBox.x, currentMousePositionInsideBox.y, currentMousePositionInsideBox.z);
+        visualForMousePosition.localPosition = new Vector3(0, currentMousePositionInsideBox.y, currentMousePositionInsideBox.z);
         swordRotationWhileSwinging.LookAt(swingTarget, Vector3.up);
         swordRotationWhileSwinging.transform.position = handParent.transform.position;
         HandleBufferInput();
@@ -288,7 +288,7 @@ public class Player : MonoBehaviour
 
         if (leftClickPressed)
         {
-            directionOfAttack = new Vector3( initialLeftClickPositionTransform.position.x, initialLeftClickPositionTransform.position.y, 0)  - new Vector3(visualForMousePosition.position.x, visualForMousePosition.position.y, 0);
+            directionOfAttack = new Vector3( initialLeftClickPositionTransform.position.x, initialLeftClickPositionTransform.position.y, initialLeftClickPositionTransform.position.z)  - new Vector3(visualForMousePosition.position.x, visualForMousePosition.position.y, visualForMousePosition.position.z);
             midpointOfAttack = Vector3.Lerp(initialLeftClickPositionTransform.position, visualForMousePosition.position, 0.5f);
 
             directionOfHalfwayAttack = midpointOfAttack - actualSwingTarget.position;
@@ -389,7 +389,7 @@ public class Player : MonoBehaviour
                     {
                         if (currentBufferedInput.directionOfAction != Vector3.zero)
                         {
-                            ChangeStateToAttack(new Vector3(currentBufferedInput.directionOfAction.x, currentBufferedInput.directionOfAction.y));
+                            //ChangeStateToAttack(new Vector3(currentBufferedInput.directionOfAction.x, currentBufferedInput.directionOfAction.y));
                             bufferQueue.Dequeue();
                         }
                     }
@@ -407,8 +407,6 @@ public class Player : MonoBehaviour
     private void ChangeStateToAttack(Vector3 vector3Sent)
     {
 
-        handParent.rotation = swordPathTransform.transform.rotation;
-        swordPathTransform.transform.up = directionOfAttack;
         Vector3 closestEdgePosition = FindClosestEdgePosition(vector3Sent);
         closestEdgePosition = new Vector3( closestEdgePosition.z, closestEdgePosition.x, closestEdgePosition.y );
         Debug.Log(closestEdgePosition);
