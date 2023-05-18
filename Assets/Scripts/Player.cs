@@ -66,6 +66,8 @@ public class Player : MonoBehaviour
     [SerializeField] Transform handParent;
     bool leftClickPressed = false;
 
+
+    Vector3 offsetAfterLeftClick;
     public enum State
     {
         Normal,
@@ -288,19 +290,39 @@ public class Player : MonoBehaviour
 
         if (leftClickPressed)
         {
-            directionOfAttack = new Vector3( initialLeftClickPositionTransform.position.x, initialLeftClickPositionTransform.position.y, initialLeftClickPositionTransform.position.z)  - new Vector3(visualForMousePosition.position.x, visualForMousePosition.position.y, visualForMousePosition.position.z);
-            midpointOfAttack = Vector3.Lerp(initialLeftClickPositionTransform.position, visualForMousePosition.position, 0.5f);
-
-            directionOfHalfwayAttack = midpointOfAttack - actualSwingTarget.position;
+            offsetAfterLeftClick = -initialLeftClickPositionTransform.localPosition;
+            directionOfAttack = Vector3.zero - (new Vector3(visualForMousePosition.localPosition.x, visualForMousePosition.localPosition.y, visualForMousePosition.localPosition.z) + offsetAfterLeftClick);
 
 
 
-            swordPathTransform.transform.up = directionOfAttack;
+            swordPathTransform.transform.position = initialLeftClickPositionTransform.position;
+            swordPathTransform.transform.LookAt(visualForMousePosition, Vector3.up);
 
-            halfwayPointVisual.transform.position = midpointOfAttack;
-            halfwayPointVisual.transform.up = -directionOfHalfwayAttack;
 
-            handParent.up = Vector3.MoveTowards(handParent.up, - swordRotationWhileSwinging.forward, 10 * Time.deltaTime);
+            if (directionOfAttack.y >= 0)
+            {
+                if (directionOfAttack.z < 0)
+                {
+                    //then its good
+                    handParent.transform.forward = swordPathTransform.up;
+                }
+                else
+                {
+                    swordPathTransform.transform.forward = swordPathTransform.transform.up;
+
+
+                    handParent.transform.forward = new Vector3(swordPathTransform.up.x + 180, swordPathTransform.up.y, swordPathTransform.up.z + 180);
+                    //then i want to flip
+                }
+            }
+            else if (directionOfAttack.y < 0)
+            {
+            }
+            Debug.Log(directionOfAttack + " " + Time.deltaTime);
+
+
+
+            //handParent.up = Vector3.MoveTowards(handParent.up, - swordRotationWhileSwinging.forward, 10 * Time.deltaTime);
         }
         /*if (MathF.Abs(swordX) > 80 || swordY < 30)
         {
@@ -349,7 +371,7 @@ public class Player : MonoBehaviour
     private void ChangeStateToNormal()
     {
         attackTimer = 0;
-           isFollowThrough = false;
+        isFollowThrough = false;
         state = State.Normal;
     }
 
@@ -398,7 +420,7 @@ public class Player : MonoBehaviour
                     {
                         if (currentBufferedInput.directionOfAction != Vector3.zero)
                         {
-                            ChangeStateToAttack(new Vector3(currentBufferedInput.directionOfAction.x, currentBufferedInput.directionOfAction.y));
+                            //ChangeStateToAttack(new Vector3(currentBufferedInput.directionOfAction.x, currentBufferedInput.directionOfAction.y));
                             bufferQueue.Dequeue();
                         }
                     }
@@ -418,7 +440,7 @@ public class Player : MonoBehaviour
         handParent.transform.rotation = swordPathTransform.rotation;
         handParent.transform.position = initialLeftClickPositionTransform.position;
         Vector3 closestEdgePosition = FindClosestEdgePosition(vector3Sent);
-        closestEdgePosition = new Vector3( closestEdgePosition.z, closestEdgePosition.x, closestEdgePosition.y );
+        closestEdgePosition = new Vector3(closestEdgePosition.z, closestEdgePosition.x, closestEdgePosition.y);
         Debug.Log(closestEdgePosition);
         swordStartAttackPosition = closestEdgePosition;
         isFollowThrough = false;
