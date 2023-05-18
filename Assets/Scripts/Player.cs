@@ -299,7 +299,7 @@ public class Player : MonoBehaviour
             swordPathTransform.transform.LookAt(visualForMousePosition, Vector3.up);
 
 
-            if (directionOfAttack.y >= 0)
+            /*if (directionOfAttack.y >= 0)
             {
                 if (directionOfAttack.z < 0)
                 {
@@ -317,9 +317,12 @@ public class Player : MonoBehaviour
             }
             else if (directionOfAttack.y < 0)
             {
-            }
-            Debug.Log(directionOfAttack + " " + Time.deltaTime);
+            }*/
 
+            //handParent.transform.rotation = Quaternion.RotateTowards(handParent.transform.rotation, swordPathTransform.rotation, 500 * Time.deltaTime);
+            handParent.transform.forward = Vector3.MoveTowards(handParent.transform.forward, new Vector3(swordPathTransform.transform.forward.x, swordPathTransform.transform.forward.y, swordPathTransform.transform.forward.z), 250 * Time.deltaTime);
+            Debug.Log(directionOfAttack + " " + Time.deltaTime);
+            handParent.transform.localEulerAngles = new Vector3(handParent.transform.localEulerAngles.x, handParent.transform.localEulerAngles.y, handParent.transform.localEulerAngles.z);
 
 
             //handParent.up = Vector3.MoveTowards(handParent.up, - swordRotationWhileSwinging.forward, 10 * Time.deltaTime);

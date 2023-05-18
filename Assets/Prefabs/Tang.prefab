@@ -59,7 +59,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 528261145612848222}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 162, z: 0}
+  m_LocalPosition: {x: -0, y: -5, z: -120}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1056,7 +1056,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4002735916421371981}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -1809,9 +1809,9 @@ MonoBehaviour:
   BottomRightSwordPosition: {x: -52, y: 122, z: -54}
   BottomRighSwordRotation: {x: -0.39894015, y: -0.48001355, z: -0.54724365, w: 0.5576362}
   TopRightSwordPosition: {x: -52, y: 122, z: -54}
-  TopRightSwordRotation: {x: 0.5670769, y: 0.2607495, z: 0.2528798, w: -0.7392464}
+  TopRightSwordRotation: {x: 0.1514802, y: -0.18474111, z: -0.13385543, w: 0.96177286}
   TopLeftSwordPosition: {x: -52, y: -122, z: -54}
-  TopLeftSwordRotation: {x: -0.7392469, y: -0.2528788, z: -0.26074815, w: 0.5670774}
+  TopLeftSwordRotation: {x: -0.083679706, y: -0.2237687, z: -0.18401411, w: 0.9534484}
   visualForMousePosition: {fileID: 7073768870134281479}
   halfwayPointVisual: {fileID: 2781020142947496443}
   swingTarget: {fileID: 3922626640104002145}
@@ -2061,11 +2061,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3719635888706794418, guid: ca6bd3aee076f4f888edcb4a6b2a6d00, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 1
+      value: 0.7071068
       objectReference: {fileID: 0}
     - target: {fileID: 3719635888706794418, guid: ca6bd3aee076f4f888edcb4a6b2a6d00, type: 3}
       propertyPath: m_LocalRotation.x
-      value: 0
+      value: -0.7071068
       objectReference: {fileID: 0}
     - target: {fileID: 3719635888706794418, guid: ca6bd3aee076f4f888edcb4a6b2a6d00, type: 3}
       propertyPath: m_LocalRotation.y
@@ -2077,7 +2077,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3719635888706794418, guid: ca6bd3aee076f4f888edcb4a6b2a6d00, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
+      value: -90
       objectReference: {fileID: 0}
     - target: {fileID: 3719635888706794418, guid: ca6bd3aee076f4f888edcb4a6b2a6d00, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
