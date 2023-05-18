@@ -45,6 +45,7 @@ public class Player : MonoBehaviour
     [SerializeField] Transform swordRotationWhileSwinging;
     [SerializeField] Transform swordPathTransform;
     [SerializeField] Transform initialLeftClickPositionTransform;
+    [SerializeField] Transform finalLeftClickPositionTransform;
 
     float bottomLimitPosition = 90;
     float topLimitPosition = -54;
@@ -228,6 +229,8 @@ public class Player : MonoBehaviour
     void OnFireUp()
     {
         finalLeftClickPosition = new Vector3(visualForMousePosition.position.x, visualForMousePosition.position.y, visualForMousePosition.position.z);
+        finalLeftClickPositionTransform.position = new Vector3( finalLeftClickPosition.x, finalLeftClickPosition.y, finalLeftClickPosition.z);
+        finalLeftClickPositionTransform.localPosition = new Vector3(finalLeftClickPositionTransform.localPosition.x - 200, finalLeftClickPositionTransform.localPosition.y, finalLeftClickPositionTransform.localPosition.z);
         leftClickPressed = false;
         BufferInput attackBuffer = new BufferInput(TangData.InputActionType.LeftClick, currentMousePositionInsideBox.normalized, Time.time);
         bufferQueue.Enqueue(attackBuffer);
@@ -291,12 +294,20 @@ public class Player : MonoBehaviour
         if (leftClickPressed)
         {
             offsetAfterLeftClick = -initialLeftClickPositionTransform.localPosition;
+
             directionOfAttack = Vector3.zero - (new Vector3(visualForMousePosition.localPosition.x, visualForMousePosition.localPosition.y, visualForMousePosition.localPosition.z) + offsetAfterLeftClick);
 
 
 
             swordPathTransform.transform.position = initialLeftClickPositionTransform.position;
             swordPathTransform.transform.LookAt(visualForMousePosition, Vector3.up);
+
+
+            midpointOfAttack = Vector3.Lerp(initialLeftClickPositionTransform.position, visualForMousePosition.position, 0.5f);
+
+            halfwayPointVisual.transform.position = initialLeftClickPositionTransform.position;
+            halfwayPointVisual.transform.LookAt(actualSwingTarget);
+
 
 
             /*if (directionOfAttack.y >= 0)
@@ -319,10 +330,10 @@ public class Player : MonoBehaviour
             {
             }*/
 
-            //handParent.transform.rotation = Quaternion.RotateTowards(handParent.transform.rotation, swordPathTransform.rotation, 500 * Time.deltaTime);
-            handParent.transform.forward = Vector3.MoveTowards(handParent.transform.forward, new Vector3(swordPathTransform.transform.forward.x, swordPathTransform.transform.forward.y, swordPathTransform.transform.forward.z), 250 * Time.deltaTime);
-            Debug.Log(directionOfAttack + " " + Time.deltaTime);
-            handParent.transform.localEulerAngles = new Vector3(handParent.transform.localEulerAngles.x, handParent.transform.localEulerAngles.y, handParent.transform.localEulerAngles.z);
+            //handParent.transform.rotation = Quaternion.RotateTowards(handParent.transform.rotation, halfwayPointVisual.rotation, 500 * Time.deltaTime);
+            handParent.transform.rotation = Quaternion.RotateTowards(handParent.transform.rotation, swordPathTransform.rotation, 5000 * Time.deltaTime);
+            //handParent.transform.forward = Vector3.MoveTowards(handParent.transform.forward, new Vector3(swordPathTransform.transform.forward.x, swordPathTransform.transform.forward.y, swordPathTransform.transform.forward.z), 250 * Time.deltaTime);
+            
 
 
             //handParent.up = Vector3.MoveTowards(handParent.up, - swordRotationWhileSwinging.forward, 10 * Time.deltaTime);
@@ -344,11 +355,34 @@ public class Player : MonoBehaviour
     bool isFollowThrough = false;
 
     float attackTimer = 0;
-    float attackTimerThreshhold = 1f;
+    float attackTimerThreshhold = .2f;
+
+    float xRotWhileAttacking = 0;
+
     private void HandleAttackingSwordPosition()
     {
         attackTimer += Time.deltaTime;
-        handParent.RotateAround(transform.position, handParent.forward, 250 * Time.deltaTime);
+
+        if (directionOfAttack.y < 0)
+        {
+            handParent.RotateAround(handParent.transform.position, handParent.up, 1000 * Time.deltaTime);
+        }
+        else
+        {
+            handParent.RotateAround(handParent.transform.position, -handParent.up, 1000 * Time.deltaTime);
+        }
+
+        float distanceFromHandParentReachingTarget = Vector3.Distance(handParent.forward, -swordPathTransform.forward);
+
+        Debug.Log(distanceFromHandParentReachingTarget + " " + Time.deltaTime);
+
+        float zeroToOneTimer = attackTimer / attackTimerThreshhold;
+
+        //Vector3 swordPositionWhileAttacking = Vector3.Lerp(handParent.transform.localPosition, finalLeftClickPositionTransform.localPosition, zeroToOneX);
+        handParent.transform.localPosition = Vector3.Lerp(handParent.transform.localPosition, finalLeftClickPositionTransform.localPosition, zeroToOneTimer);
+
+        //handParent.transform.localPosition = Vector3.MoveTowards(handParent.transform.localPosition, finalLeftClickPositionTransform.localPosition, 5 * Time.deltaTime * Vector3.Distance(currentMousePositionInsideBox, finalLeftClickPositionTransform.localPosition));
+        xRotWhileAttacking += 1;
         if (attackTimer > attackTimerThreshhold)
         {
             ChangeStateToNormal();
@@ -423,7 +457,7 @@ public class Player : MonoBehaviour
                     {
                         if (currentBufferedInput.directionOfAction != Vector3.zero)
                         {
-                            //ChangeStateToAttack(new Vector3(currentBufferedInput.directionOfAction.x, currentBufferedInput.directionOfAction.y));
+                            ChangeStateToAttack(new Vector3(currentBufferedInput.directionOfAction.x, currentBufferedInput.directionOfAction.y));
                             bufferQueue.Dequeue();
                         }
                     }
@@ -440,51 +474,9 @@ public class Player : MonoBehaviour
     Vector3 directionOfAttack;
     private void ChangeStateToAttack(Vector3 vector3Sent)
     {
-        handParent.transform.rotation = swordPathTransform.rotation;
-        handParent.transform.position = initialLeftClickPositionTransform.position;
-        Vector3 closestEdgePosition = FindClosestEdgePosition(vector3Sent);
-        closestEdgePosition = new Vector3(closestEdgePosition.z, closestEdgePosition.x, closestEdgePosition.y);
-        Debug.Log(closestEdgePosition);
-        swordStartAttackPosition = closestEdgePosition;
         isFollowThrough = false;
         state = State.Attacking;
+        xRotWhileAttacking = handParent.localRotation.x;
     }
 
-    private Vector3 FindClosestEdgePosition(Vector3 vector3Sent)
-    {
-        float left = TopLeftSwordPosition.y;
-        float right = TopRightSwordPosition.y;
-        float bottom = bottomLimitPosition;
-        float top = topLimitPosition;
-        //median of top and bottom is 17.5
-        //if curr
-        if (swordX > 0)
-        {
-            if (swordY > 17.5f)
-            {
-                return new Vector3(right, bottom);
-            }
-            if (swordY <= 17.5f)
-            {
-                return new Vector3(right, top);
-            }
-        }
-        if (swordX < 0)
-        {
-            if (swordY > 17.5f)
-            {
-                return new Vector3(left, bottom);
-            }
-            if (swordY <= 17.5f)
-            {
-                return new Vector3(left, top);
-            }
-        }
-
-
-
-
-
-        return Vector3.zero;
-    }
 }
